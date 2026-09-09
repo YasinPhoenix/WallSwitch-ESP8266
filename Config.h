@@ -110,10 +110,11 @@ static const uint8_t COLOR_RGB_BITS[COLOR_COUNT] = {
 // ============================================================================
 // TIMING
 // ============================================================================
-#define TOUCH_DEBOUNCE_MS     50UL
-#define RELAY_SAVE_DELAY_MS   300UL    // relay state: short, must survive a quick power loss
-#define COLOR_SAVE_DELAY_MS   3000UL   // color prefs: longer, coalesces UI fiddling
-#define WIFI_RESTART_DELAY_MS 1500UL   // lets the "saved" HTTP response reach the client first
+#define TOUCH_DEBOUNCE_MS      50UL
+#define RELAY_SAVE_DELAY_MS    300UL    // relay state: short, must survive a quick power loss
+#define COLOR_SAVE_DELAY_MS    3000UL   // color prefs: longer, coalesces UI fiddling
+#define WIFI_RESTART_DELAY_MS  1500UL   // lets the "saved" HTTP response reach the client first
+#define FACTORY_RESET_HOLD_MS  10000UL  // hold every touch at once this long to wipe EEPROM + restart
 
 // ============================================================================
 // ACCESS POINT

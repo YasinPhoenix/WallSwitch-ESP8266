@@ -51,6 +51,13 @@ void loop() {
         stateManager.toggleRelay(pressedIndex, shiftRegister);
     }
 
+    // Hold every touch at once for FACTORY_RESET_HOLD_MS to forget the AP
+    // SSID/password (and relay/color prefs) and reboot to defaults.
+    if (inputManager.checkFactoryReset(now)) {
+        Persistence::invalidate();
+        ESP.restart();
+    }
+
     webServer.handleClient();
     stateManager.tick(now);
     wifiAP.tick(now);

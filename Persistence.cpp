@@ -52,3 +52,9 @@ void Persistence::save(const PersistentState &in) {
     EEPROM.put(0, copy);
     EEPROM.commit();
 }
+
+void Persistence::invalidate() {
+    uint8_t bad = static_cast<uint8_t>(PERSIST_MAGIC ^ 0xFF); // anything != PERSIST_MAGIC
+    EEPROM.put(0, bad); // magic is the struct's first byte - a 1-byte write is enough
+    EEPROM.commit();
+}

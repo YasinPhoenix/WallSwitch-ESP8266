@@ -31,6 +31,12 @@ namespace Persistence {
     bool load(PersistentState &out);            // false if invalid/corrupt -> caller must apply defaults
     void save(const PersistentState &in);       // recomputes checksum, writes, commits
     void applyDefaults(PersistentState &out);   // safe factory defaults (relays off, AP blank)
+
+    // Factory reset: corrupts just the magic byte and commits (cheap, single
+    // byte write). The next boot's existing "load() failed" path in the
+    // .ino re-applies defaults and generates a fresh AP name - no separate
+    // reset logic to keep in sync with normal first-boot behavior.
+    void invalidate();
 }
 
 #endif // PERSISTENCE_H

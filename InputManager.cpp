@@ -22,3 +22,17 @@ bool InputManager::poll(uint8_t &outIndex) {
     }
     return false;
 }
+
+bool InputManager::checkFactoryReset(uint32_t nowMs) {
+    for (uint8_t i = 0; i < SWITCH_COUNT; i++) {
+        if (digitalRead(TOUCH_PINS[i]) != LOW) {
+            _allHeldSinceMs = 0; // not everyone is pressed - reset the timer
+            return false;
+        }
+    }
+    if (_allHeldSinceMs == 0) {
+        _allHeldSinceMs = nowMs; // just became all-held - start timing
+        return false;
+    }
+    return (nowMs - _allHeldSinceMs) >= FACTORY_RESET_HOLD_MS;
+}

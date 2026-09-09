@@ -8,6 +8,10 @@
 // a RAM buffer or built with String concatenation. Switch count is never
 // hardcoded in the HTML/JS: the client derives it from data.r.length in the
 // /state response, so this file does not change when SWITCH_COUNT changes.
+//
+// No external fonts/CDNs anywhere - the device is an access point with no
+// internet access while a phone is connected to it, so anything hosted
+// elsewhere would just fail to load. Every page is fully self-contained.
 
 static const char MAIN_PAGE[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
@@ -17,39 +21,100 @@ static const char MAIN_PAGE[] PROGMEM = R"rawliteral(
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>کنترل کلیدها</title>
 <style>
-:root{--bg:#121212;--card:#1e1e1e;--border:#2c2c2c;--text:#f2f2f2;--muted:#9a9a9a;--on:#e8a33d;--off:#3a3a3a}
+:root{
+  --bg:#0f0f11;--surface:#1b1b1f;--surface-2:#232328;--border:#2e2e34;
+  --text:#f2f2f4;--muted:#9a9aa4;--accent:#e8a33d;--accent-2:#c9822a;--accent-text:#1a1408;
+  --wifi-btn:#2b6f77;--wifi-btn-text:#eafcff;
+  --radius-lg:20px;--radius-md:14px;--shadow:0 4px 14px rgba(0,0,0,.35);
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;padding:16px;padding-bottom:40px}
-h1{font-size:1.2rem;margin:0 0 16px}
-h2{font-size:1rem;color:var(--muted);margin:28px 0 12px;border-top:1px solid var(--border);padding-top:20px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.card .name{font-size:1.05rem}
-.toggle{border:none;border-radius:24px;width:64px;height:34px;position:relative;background:var(--off);cursor:pointer;flex-shrink:0;padding:0}
-.toggle .dot{position:absolute;top:3px;right:3px;width:28px;height:28px;border-radius:50%;background:#fff;transition:transform .15s}
-.toggle.on{background:var(--on)}
-.toggle.on .dot{transform:translateX(-30px)}
-.switchcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px}
-.switchcard .title{font-size:1.05rem;margin-bottom:12px}
-.colorblock{margin-bottom:18px}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
+  padding:18px;padding-bottom:48px;max-width:480px;margin-inline:auto;
+  -webkit-tap-highlight-color:transparent;
+}
+header{margin-bottom:18px}
+header h1{font-size:1.3rem;margin:0;font-weight:800}
+header p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
+
+.relay-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.relay-btn{
+  aspect-ratio:1;border:none;border-radius:var(--radius-lg);
+  background:var(--surface-2);color:var(--text);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:var(--shadow);cursor:pointer;
+  transition:background .18s ease,transform .1s ease,box-shadow .18s ease;
+  -webkit-user-select:none;user-select:none;
+}
+.relay-btn:active{transform:scale(.96)}
+.relay-btn.on{
+  background:linear-gradient(160deg,var(--accent),var(--accent-2));
+  color:var(--accent-text);box-shadow:0 4px 18px rgba(232,163,61,.35);
+}
+.relay-btn .num{font-size:2rem;font-weight:800;line-height:1}
+.relay-btn .state{font-size:.85rem;margin-top:6px;opacity:.8;font-weight:600}
+
+details.rgb-panel{
+  margin-top:22px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);overflow:hidden;
+}
+details.rgb-panel summary{
+  list-style:none;cursor:pointer;padding:14px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:.95rem;color:var(--muted);font-weight:700;
+}
+details.rgb-panel summary::-webkit-details-marker{display:none}
+details.rgb-panel summary .chev{transition:transform .2s ease;font-size:.8rem}
+details.rgb-panel[open] summary .chev{transform:rotate(180deg)}
+details.rgb-panel .body{padding:4px 16px 16px}
+
+.switchcard{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:14px;margin-top:12px;
+}
+.switchcard:first-child{margin-top:0}
+.switchcard .title{font-size:.9rem;font-weight:700;margin-bottom:12px;color:var(--muted)}
+.colorblock{margin-bottom:16px}
 .colorblock:last-child{margin-bottom:0}
-.colorblock .label{font-size:.9rem;color:var(--muted);margin-bottom:8px}
-.swatches{display:flex;flex-wrap:wrap;gap:8px}
-.swatch{width:42px;height:42px;border-radius:10px;border:2px solid var(--border);cursor:pointer}
-.swatch.selected{border-color:var(--text)}
+.colorblock .label{font-size:.85rem;color:var(--muted);margin-bottom:8px}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.swatch{
+  aspect-ratio:1;border-radius:10px;border:2px solid var(--border);cursor:pointer;
+  transition:transform .1s ease,box-shadow .15s ease;
+}
+.swatch:active{transform:scale(.92)}
+.swatch.selected{box-shadow:0 0 0 2px var(--surface-2),0 0 0 4px var(--text)}
 .sw-0{background:#2b2b2b}.sw-1{background:#e74c3c}.sw-2{background:#2ecc71}.sw-3{background:#3498db}
 .sw-4{background:#f1c40f}.sw-5{background:#1abc9c}.sw-6{background:#9b59b6}.sw-7{background:#ffffff}
-.footer-link{display:block;text-align:center;margin-top:30px;color:var(--muted);text-decoration:none;font-size:.9rem;padding:12px}
-.loading{color:var(--muted);text-align:center;padding:20px}
+
+.wifi-link{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:26px;padding:14px;border-radius:var(--radius-md);
+  background:var(--wifi-btn);color:var(--wifi-btn-text);
+  text-decoration:none;font-size:.95rem;font-weight:700;box-shadow:var(--shadow);
+}
+.wifi-link:active{transform:scale(.98)}
+
+.loading{grid-column:1/-1;color:var(--muted);text-align:center;padding:24px;font-size:.9rem}
 </style>
 </head>
 <body>
-<h1>کنترل کلیدها</h1>
-<div id="relays" class="loading">در حال بارگذاری...</div>
+<header>
+  <h1>کنترل کلیدها</h1>
+  <p>برای روشن یا خاموش کردن هر کلید، روی آن ضربه بزنید</p>
+</header>
 
-<h2>تنظیمات رنگ</h2>
-<div id="colors"></div>
+<div id="relays" class="relay-grid">
+  <div class="loading">در حال بارگذاری...</div>
+</div>
 
-<a class="footer-link" href="/wifi">تنظیمات Wi-Fi</a>
+<details class="rgb-panel">
+  <summary>تنظیمات رنگ <span class="chev">&#9662;</span></summary>
+  <div class="body" id="colors"></div>
+</details>
+
+<a class="wifi-link" href="/wifi">&#9881;&#65039; تنظیمات Wi-Fi دستگاه</a>
 
 <script>
 var COLOR_NAMES = ["خاموش","قرمز","سبز","آبی","زرد","فیروزه‌ای","بنفش","سفید"];
@@ -77,20 +142,18 @@ function render(data) {
   var count = data.r.length;
   for (var i = 0; i < count; i++) {
     (function (i) {
-      var card = document.createElement('div');
-      card.className = 'card';
-      var name = document.createElement('div');
-      name.className = 'name';
-      name.textContent = 'کلید ' + (i + 1);
       var btn = document.createElement('button');
-      btn.className = 'toggle' + (data.r[i] ? ' on' : '');
-      var dot = document.createElement('div');
-      dot.className = 'dot';
-      btn.appendChild(dot);
+      btn.className = 'relay-btn' + (data.r[i] ? ' on' : '');
+      var num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = i + 1;
+      var state = document.createElement('div');
+      state.className = 'state';
+      state.textContent = data.r[i] ? 'روشن' : 'خاموش';
+      btn.appendChild(num);
+      btn.appendChild(state);
       btn.onclick = function () { setRelay(i, data.r[i] ? 0 : 1); };
-      card.appendChild(name);
-      card.appendChild(btn);
-      relaysEl.appendChild(card);
+      relaysEl.appendChild(btn);
 
       var sc = document.createElement('div');
       sc.className = 'switchcard';
@@ -143,7 +206,7 @@ function setColor(i, which, c) {
 }
 
 loadState();
-setInterval(loadState, 4000);
+setInterval(loadState, 1000);
 </script>
 </body>
 </html>
@@ -157,23 +220,50 @@ static const char WIFI_PAGE[] PROGMEM = R"rawliteral(
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>تنظیمات Wi-Fi</title>
 <style>
-:root{--bg:#121212;--card:#1e1e1e;--border:#2c2c2c;--text:#f2f2f2;--muted:#9a9a9a;--accent:#e8a33d}
+:root{
+  --bg:#0f0f11;--surface:#1b1b1f;--surface-2:#232328;--border:#2e2e34;
+  --text:#f2f2f4;--muted:#9a9aa4;--accent:#e8a33d;--accent-2:#c9822a;--accent-text:#1a1408;
+  --radius-lg:20px;--radius-md:14px;--shadow:0 4px 14px rgba(0,0,0,.35);
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif;padding:16px}
-h1{font-size:1.2rem}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
+  padding:18px;max-width:480px;margin-inline:auto;
+}
+header h1{font-size:1.25rem;margin:0 0 4px;font-weight:800}
+header p{margin:0 0 22px;color:var(--muted);font-size:.85rem}
 .field{margin-bottom:16px}
-label{display:block;margin-bottom:6px;color:var(--muted);font-size:.9rem}
-input[type=text],input[type=password]{width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1rem}
-.checkline{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.checkline input{width:20px;height:20px}
-.checkline label{margin:0}
-button{width:100%;padding:14px;border:none;border-radius:8px;background:var(--accent);color:#1a1a1a;font-size:1rem;font-weight:bold;cursor:pointer}
-.note{color:var(--muted);font-size:.85rem;margin-top:16px;line-height:1.6}
-a.back{display:block;margin-top:20px;color:var(--muted);text-align:center;text-decoration:none}
+label{display:block;margin-bottom:6px;color:var(--muted);font-size:.85rem;font-weight:600}
+input[type=text],input[type=password]{
+  width:100%;padding:13px 14px;border-radius:var(--radius-md);border:1px solid var(--border);
+  background:var(--surface);color:var(--text);font-size:1rem;
+}
+input:focus{outline:2px solid var(--accent)}
+.checkline{
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;
+}
+.checkline input{width:20px;height:20px;accent-color:var(--accent)}
+.checkline label{margin:0;color:var(--text);font-size:.9rem;font-weight:500}
+button{
+  width:100%;padding:15px;border:none;border-radius:var(--radius-md);
+  background:linear-gradient(160deg,var(--accent),var(--accent-2));color:var(--accent-text);
+  font-size:1rem;font-weight:800;cursor:pointer;box-shadow:var(--shadow);
+}
+button:active{transform:scale(.98)}
+.note{
+  color:var(--muted);font-size:.82rem;margin-top:18px;line-height:1.7;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;
+}
+a.back{display:block;margin-top:22px;color:var(--muted);text-align:center;text-decoration:none;font-size:.85rem}
 </style>
 </head>
 <body>
-<h1>تنظیمات Wi-Fi دستگاه</h1>
+<header>
+  <h1>تنظیمات Wi-Fi دستگاه</h1>
+  <p>نام و رمز شبکه‌ای که دستگاه پخش می‌کند را تغییر دهید</p>
+</header>
 <form method="POST" action="/wifi">
   <div class="field">
     <label for="ssid">نام شبکه (SSID)</label>
@@ -189,7 +279,10 @@ a.back{display:block;margin-top:20px;color:var(--muted);text-align:center;text-d
   </div>
   <button type="submit">ذخیره و راه‌اندازی مجدد</button>
 </form>
-<div class="note">پس از ذخیره، دستگاه راه‌اندازی مجدد می‌شود و باید به شبکه Wi-Fi جدید متصل شوید.</div>
+<div class="note">
+پس از ذخیره، دستگاه راه‌اندازی مجدد می‌شود و باید به شبکه Wi-Fi جدید متصل شوید.<br><br>
+رمز را فراموش کرده‌اید؟ تمام لمسی‌های دستگاه را همزمان و به مدت ۱۰ ثانیه نگه دارید تا دستگاه به تنظیمات پیش‌فرض بازگردد.
+</div>
 <a class="back" href="/">بازگشت به کنترل کلیدها</a>
 <script>
 fetch('/wifi/state').then(function (r) { return r.json(); }).then(function (d) {
@@ -208,7 +301,12 @@ static const char RESTART_NOTICE_PAGE[] PROGMEM = R"rawliteral(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>در حال راه‌اندازی مجدد</title>
 <style>
-body{margin:0;background:#121212;color:#f2f2f2;font-family:Tahoma,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:20px}
+body{
+  margin:0;background:#0f0f11;color:#f2f2f4;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
+  display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:24px;
+}
+div{background:#1b1b1f;border:1px solid #2e2e34;border-radius:16px;padding:24px;line-height:1.8}
 </style>
 </head>
 <body>
