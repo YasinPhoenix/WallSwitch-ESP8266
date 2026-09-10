@@ -10,8 +10,8 @@
 // ============================================================================
 // #define SWITCH_COUNT 1
 // #define SWITCH_COUNT 2
-#define SWITCH_COUNT 3
-// #define SWITCH_COUNT 4
+// #define SWITCH_COUNT 3
+#define SWITCH_COUNT 4
 
 // ============================================================================
 // PER-SWITCH-COUNT HARDWARE MAPPING

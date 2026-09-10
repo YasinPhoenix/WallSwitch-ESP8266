@@ -15,6 +15,7 @@
 
 static const char MAIN_PAGE[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
+
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -28,85 +29,288 @@ static const char MAIN_PAGE[] PROGMEM = R"rawliteral(
   --radius-lg:20px;--radius-md:14px;--shadow:0 4px 14px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
+
 body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
-  padding:18px;padding-bottom:48px;max-width:480px;margin-inline:auto;
-  -webkit-tap-highlight-color:transparent;
+margin:0;background:var(--bg);color:var(--text);
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;
+padding:18px;padding-bottom:48px;max-width:480px;margin-inline:auto;
+-webkit-tap-highlight-color:transparent;
 }
-header{margin-bottom:18px}
-header h1{font-size:1.3rem;margin:0;font-weight:800}
-header p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
 
-.relay-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+/* Company header */
+.page-header{
+  text-align:center;
+  margin-bottom:22px;
+}
+
+.company-name{
+  font-size:2rem;
+  font-weight:900;
+  letter-spacing:2px;
+  line-height:1;
+  text-transform:uppercase;
+
+  background:linear-gradient(
+    135deg,
+    #ffffff,
+    #e8a33d
+  );
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+
+  text-shadow:0 4px 18px rgba(232,163,61,.18);
+}
+
+.company-line{
+  width:70px;
+  height:3px;
+  margin:10px auto 0;
+  border-radius:3px;
+  background:var(--accent);
+  box-shadow:0 2px 10px rgba(232,163,61,.35);
+}
+
+
+/* Relay panel header */
+.relay-header{
+  text-align:center;
+  margin-bottom:16px;
+}
+
+.relay-header h1{
+  font-size:1.3rem;
+  margin:0;
+  font-weight:800;
+}
+
+.relay-header p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:.85rem;
+}
+
+/* Relay controls container */
+.relay-panel{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius-lg);
+padding:14px;
+box-shadow:var(--shadow);
+}
+
+/*
+* Default: one relay per row.
+* Four relays: two per row.
+*/
+.relay-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  justify-items:center;
+}
+
+.relay-grid.four{
+  grid-template-columns:repeat(2,1fr);
+}
+
 .relay-btn{
-  aspect-ratio:1;border:none;border-radius:var(--radius-lg);
-  background:var(--surface-2);color:var(--text);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  box-shadow:var(--shadow);cursor:pointer;
-  transition:background .18s ease,transform .1s ease,box-shadow .18s ease;
-  -webkit-user-select:none;user-select:none;
+  width:100%;
+  max-width:180px;
+  aspect-ratio:1;
+  border:none;
+  border-radius:var(--radius-lg);
+  background:var(--surface-2);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition:
+    background .18s ease,
+    color .18s ease,
+    transform .1s ease,
+    box-shadow .18s ease;
+  -webkit-user-select:none;
+  user-select:none;
 }
-.relay-btn:active{transform:scale(.96)}
-.relay-btn.on{
-  background:linear-gradient(160deg,var(--accent),var(--accent-2));
-  color:var(--accent-text);box-shadow:0 4px 18px rgba(232,163,61,.35);
-}
-.relay-btn .num{font-size:2rem;font-weight:800;line-height:1}
-.relay-btn .state{font-size:.85rem;margin-top:6px;opacity:.8;font-weight:600}
 
+.relay-btn:active{
+transform:scale(.96);
+}
+
+.relay-btn .num{
+font-size:2rem;
+font-weight:800;
+line-height:1;
+}
+
+.relay-btn .state{
+font-size:.85rem;
+margin-top:6px;
+opacity:.85;
+font-weight:600;
+}
+
+/* Relay button color is set dynamically by JavaScript */
+.relay-btn.on{
+box-shadow:0 4px 18px rgba(255,255,255,.12);
+}
+
+/* RGB settings */
 details.rgb-panel{
-  margin-top:22px;background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius-md);overflow:hidden;
+margin-top:22px;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius-md);
+overflow:hidden;
 }
+
 details.rgb-panel summary{
-  list-style:none;cursor:pointer;padding:14px 16px;
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:.95rem;color:var(--muted);font-weight:700;
+list-style:none;
+cursor:pointer;
+padding:14px 16px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+font-size:.95rem;
+color:var(--muted);
+font-weight:700;
 }
-details.rgb-panel summary::-webkit-details-marker{display:none}
-details.rgb-panel summary .chev{transition:transform .2s ease;font-size:.8rem}
-details.rgb-panel[open] summary .chev{transform:rotate(180deg)}
-details.rgb-panel .body{padding:4px 16px 16px}
+
+details.rgb-panel summary::-webkit-details-marker{
+display:none;
+}
+
+details.rgb-panel summary .chev{
+transition:transform .2s ease;
+font-size:.8rem;
+}
+
+details.rgb-panel[open] summary .chev{
+transform:rotate(180deg);
+}
+
+details.rgb-panel .body{
+padding:4px 16px 16px;
+}
 
 .switchcard{
-  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);
-  padding:14px;margin-top:12px;
+background:var(--surface-2);
+border:1px solid var(--border);
+border-radius:var(--radius-md);
+padding:14px;
+margin-top:12px;
 }
-.switchcard:first-child{margin-top:0}
-.switchcard .title{font-size:.9rem;font-weight:700;margin-bottom:12px;color:var(--muted)}
-.colorblock{margin-bottom:16px}
-.colorblock:last-child{margin-bottom:0}
-.colorblock .label{font-size:.85rem;color:var(--muted);margin-bottom:8px}
-.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+
+.switchcard:first-child{
+margin-top:0;
+}
+
+.switchcard .title{
+font-size:.9rem;
+font-weight:700;
+margin-bottom:12px;
+color:var(--muted);
+}
+
+.colorblock{
+margin-bottom:16px;
+}
+
+.colorblock:last-child{
+margin-bottom:0;
+}
+
+.colorblock .label{
+font-size:.85rem;
+color:var(--muted);
+margin-bottom:8px;
+}
+
+.swatches{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:8px;
+}
+
 .swatch{
-  aspect-ratio:1;border-radius:10px;border:2px solid var(--border);cursor:pointer;
-  transition:transform .1s ease,box-shadow .15s ease;
+aspect-ratio:1;
+border-radius:10px;
+border:2px solid var(--border);
+cursor:pointer;
+transition:transform .1s ease,box-shadow .15s ease;
 }
-.swatch:active{transform:scale(.92)}
-.swatch.selected{box-shadow:0 0 0 2px var(--surface-2),0 0 0 4px var(--text)}
-.sw-0{background:#2b2b2b}.sw-1{background:#e74c3c}.sw-2{background:#2ecc71}.sw-3{background:#3498db}
-.sw-4{background:#f1c40f}.sw-5{background:#1abc9c}.sw-6{background:#9b59b6}.sw-7{background:#ffffff}
+
+.swatch:active{
+transform:scale(.92);
+}
+
+.swatch.selected{
+box-shadow:
+0 0 0 2px var(--surface-2),
+0 0 0 4px var(--text);
+}
+
+.sw-0{background:#2b2b2b}
+.sw-1{background:#e74c3c}
+.sw-2{background:#2ecc71}
+.sw-3{background:#3498db}
+.sw-4{background:#f1c40f}
+.sw-5{background:#1abc9c}
+.sw-6{background:#9b59b6}
+.sw-7{background:#ffffff}
 
 .wifi-link{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  margin-top:26px;padding:14px;border-radius:var(--radius-md);
-  background:var(--wifi-btn);color:var(--wifi-btn-text);
-  text-decoration:none;font-size:.95rem;font-weight:700;box-shadow:var(--shadow);
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+margin-top:26px;
+padding:14px;
+border-radius:var(--radius-md);
+background:var(--wifi-btn);
+color:var(--wifi-btn-text);
+text-decoration:none;
+font-size:.95rem;
+font-weight:700;
+box-shadow:var(--shadow);
 }
-.wifi-link:active{transform:scale(.98)}
 
-.loading{grid-column:1/-1;color:var(--muted);text-align:center;padding:24px;font-size:.9rem}
-</style>
+.wifi-link:active{
+transform:scale(.98);
+}
+
+.loading{
+grid-column:1/-1;
+color:var(--muted);
+text-align:center;
+padding:24px;
+font-size:.9rem;
+} </style>
+
 </head>
+
 <body>
-<header>
-  <h1>کنترل کلیدها</h1>
-  <p>برای روشن یا خاموش کردن هر کلید، روی آن ضربه بزنید</p>
+
+<header class="page-header">
+  <div class="company-name">Iranode</div>
+  <div class="company-line"></div>
 </header>
 
-<div id="relays" class="relay-grid">
-  <div class="loading">در حال بارگذاری...</div>
+<!-- Relay controls -->
+
+<div class="relay-panel">
+
+  <div class="relay-header">
+    <h1>کنترل کلیدها</h1>
+  </div>
+
+  <div id="relays" class="relay-grid">
+    <div class="loading">در حال بارگذاری...</div>
+  </div>
 </div>
 
 <details class="rgb-panel">
@@ -114,85 +318,214 @@ details.rgb-panel .body{padding:4px 16px 16px}
   <div class="body" id="colors"></div>
 </details>
 
-<a class="wifi-link" href="/wifi">&#9881;&#65039; تنظیمات Wi-Fi دستگاه</a>
+<a class="wifi-link" href="/wifi">⚙️ تنظیمات Wi-Fi دستگاه</a>
 
 <script>
-var COLOR_NAMES = ["خاموش","قرمز","سبز","آبی","زرد","فیروزه‌ای","بنفش","سفید"];
+var COLOR_NAMES = [
+  "خاموش",
+  "قرمز",
+  "سبز",
+  "آبی",
+  "زرد",
+  "فیروزه‌ای",
+  "بنفش",
+  "سفید"
+];
+
+var COLOR_VALUES = [
+  "#2b2b2b",
+  "#e74c3c",
+  "#2ecc71",
+  "#3498db",
+  "#f1c40f",
+  "#1abc9c",
+  "#9b59b6",
+  "#ffffff"
+];
+
 var relaysEl = document.getElementById('relays');
 var colorsEl = document.getElementById('colors');
 
 function swatchRow(switchIndex, which, current) {
   var wrap = document.createElement('div');
   wrap.className = 'swatches';
+
   for (var c = 0; c < 8; c++) {
     (function (c) {
       var sw = document.createElement('div');
-      sw.className = 'swatch sw-' + c + (c === current ? ' selected' : '');
+
+      sw.className =
+        'swatch sw-' + c +
+        (c === current ? ' selected' : '');
+
       sw.title = COLOR_NAMES[c];
-      sw.onclick = function () { setColor(switchIndex, which, c); };
+
+      sw.onclick = function () {
+        setColor(switchIndex, which, c);
+      };
+
       wrap.appendChild(sw);
     })(c);
   }
+
   return wrap;
 }
 
 function render(data) {
   relaysEl.innerHTML = '';
   colorsEl.innerHTML = '';
+
   var count = data.r.length;
+
+  /*
+   * Four relays -> 2x2 grid.
+   * Anything else -> one relay per row.
+   */
+  if (count === 4) {
+    relaysEl.classList.add('four');
+  } else {
+    relaysEl.classList.remove('four');
+  }
+
   for (var i = 0; i < count; i++) {
     (function (i) {
+
+      /*
+       * Determine the button's color from the configured
+       * ON/OFF color for this specific relay.
+       */
+      var currentColor = data.r[i]
+        ? COLOR_VALUES[data.on[i]]
+        : COLOR_VALUES[data.off[i]];
+
       var btn = document.createElement('button');
-      btn.className = 'relay-btn' + (data.r[i] ? ' on' : '');
+
+      btn.className =
+        'relay-btn' +
+        (data.r[i] ? ' on' : '');
+
+      /*
+       * Use the configured relay color directly.
+       */
+      btn.style.background = currentColor;
+
+      /*
+       * Pick readable text automatically.
+       * Darker colors get white text, lighter colors get dark text.
+       */
+      if (data.r[i] === 0 && data.off[i] === 0) {
+        btn.style.color = '#f2f2f4';
+      } else if (data.r[i] && data.on[i] === 0) {
+        btn.style.color = '#f2f2f4';
+      } else if (
+        data.r[i] &&
+        data.on[i] === 4
+      ) {
+        btn.style.color = '#1a1408';
+      } else if (
+        data.r[i] &&
+        data.on[i] === 7
+      ) {
+        btn.style.color = '#1a1408';
+      } else if (
+        !data.r[i] &&
+        data.off[i] === 7
+      ) {
+        btn.style.color = '#1a1408';
+      } else {
+        btn.style.color = '#ffffff';
+      }
+
+      /*
+       * Slightly stronger shadow for the selected color.
+       */
+      btn.style.boxShadow =
+        '0 4px 18px rgba(0,0,0,.28)';
+
       var num = document.createElement('div');
       num.className = 'num';
       num.textContent = i + 1;
+
       var state = document.createElement('div');
       state.className = 'state';
       state.textContent = data.r[i] ? 'روشن' : 'خاموش';
+
       btn.appendChild(num);
       btn.appendChild(state);
-      btn.onclick = function () { setRelay(i, data.r[i] ? 0 : 1); };
+
+      btn.onclick = function () {
+        setRelay(i, data.r[i] ? 0 : 1);
+      };
+
       relaysEl.appendChild(btn);
 
+      /*
+       * Color settings card
+       */
       var sc = document.createElement('div');
       sc.className = 'switchcard';
+
       var title = document.createElement('div');
       title.className = 'title';
       title.textContent = 'کلید ' + (i + 1);
+
       sc.appendChild(title);
 
+      /*
+       * ON color
+       */
       var onBlock = document.createElement('div');
       onBlock.className = 'colorblock';
+
       var onLabel = document.createElement('div');
       onLabel.className = 'label';
       onLabel.textContent = 'رنگ هنگام روشن بودن';
+
       onBlock.appendChild(onLabel);
-      onBlock.appendChild(swatchRow(i, 1, data.on[i]));
+      onBlock.appendChild(
+        swatchRow(i, 1, data.on[i])
+      );
+
       sc.appendChild(onBlock);
 
+      /*
+       * OFF color
+       */
       var offBlock = document.createElement('div');
       offBlock.className = 'colorblock';
+
       var offLabel = document.createElement('div');
       offLabel.className = 'label';
       offLabel.textContent = 'رنگ هنگام خاموش بودن';
+
       offBlock.appendChild(offLabel);
-      offBlock.appendChild(swatchRow(i, 0, data.off[i]));
+      offBlock.appendChild(
+        swatchRow(i, 0, data.off[i])
+      );
+
       sc.appendChild(offBlock);
 
       colorsEl.appendChild(sc);
+
     })(i);
   }
 }
 
 function loadState() {
-  fetch('/state').then(function (r) { return r.json(); }).then(render);
+  fetch('/state')
+    .then(function (r) {
+      return r.json();
+    })
+    .then(render);
 }
 
 function setRelay(i, s) {
   fetch('/relay', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type':
+        'application/x-www-form-urlencoded'
+    },
     body: 'i=' + i + '&s=' + s
   }).then(loadState);
 }
@@ -200,14 +533,20 @@ function setRelay(i, s) {
 function setColor(i, which, c) {
   fetch('/rgb', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'i=' + i + '&w=' + which + '&c=' + c
+    headers: {
+      'Content-Type':
+        'application/x-www-form-urlencoded'
+    },
+    body: 'i=' + i +
+          '&w=' + which +
+          '&c=' + c
   }).then(loadState);
 }
 
 loadState();
 setInterval(loadState, 1000);
 </script>
+
 </body>
 </html>
 )rawliteral";
